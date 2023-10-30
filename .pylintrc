@@ -1,0 +1,5 @@
+[MASTER]
+signature-mutators=click.decorators.option
+extension-pkg-whitelist=pydantic
+ignore-paths=src/tests
+ignore-patterns=__init__.py$
