@@ -1,40 +1,64 @@
+"""
+This module contains a FastAPI application with various routes and middleware.
+
+It initializes the FastAPI app, sets up routers, event listeners, and exception handlers, and
+creates a monitoring thread for fetching metrics.
+"""
 import threading
 from typing import List
-
 from fastapi import FastAPI, Request
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
 from api import router
 from api.default.default import default_router
-from core.config import config
 from core.exceptions import CustomException
-
+from core.config import get_config
 from monitor import MonitorTask
 
 
-def init_routers(app: FastAPI) -> None:
-    app.include_router(default_router)
-    app.include_router(router)
+def init_routers(fastapi: FastAPI) -> None:
+    """
+    Initialize API routers and include them in the FastAPI fastapi.
+
+    Args:
+        fastapi (FastAPI): The FastAPI application to add routers to.
+    """
+    # Add default route (version, healthcheck)
+    fastapi.include_router(default_router)
+    # Add domain routes
+    fastapi.include_router(router)
 
 
-def init_listeners(app: FastAPI) -> None:
+def init_listeners(fastapi: FastAPI) -> None:
+    """
+    Initialize event listeners and exception handlers for the FastAPI fastapi.
+
+    Args:
+        fastapi (FastAPI): The FastAPI application to set up event listeners and handlers for.
+    """
     # Exception handler
-    @app.exception_handler(CustomException)
-    async def custom_exception_handler(request: Request, exc: CustomException):
+    @fastapi.exception_handler(CustomException)
+    async def custom_exception_handler(_request: Request, exc: CustomException):
         return JSONResponse(
             status_code=exc.code,
             content={"error_code": exc.error_code, "message": exc.message},
         )
 
-    @app.on_event("startup")
+    # Start monitoring thread
+    @fastapi.on_event("startup")
     def on_start_up():
-        thread = threading.Thread(target=app.state.monitortask.monitor, daemon=True)
+        thread = threading.Thread(target=fastapi.state.monitortask.monitor, daemon=True)
         thread.start()
 
 
 def make_middleware() -> List[Middleware]:
+    """
+    Create and return a list of middleware components, including CORS middleware.
+
+    Returns:
+        List[Middleware]: List of FastAPI middleware components.
+    """
     middleware = [
         Middleware(
             CORSMiddleware,
@@ -48,20 +72,29 @@ def make_middleware() -> List[Middleware]:
 
 
 def create_app() -> FastAPI:
+    """
+    Create and configure the FastAPI application.
+
+    Returns:
+        FastAPI: The configured FastAPI application.
+    """
+    config = get_config()
+    # Monitoring thread to fetch metrics
     monitortask = MonitorTask()
-    app = FastAPI(
-        title=config.TITLE,
+    # API
+    fastapi = FastAPI(
+        title=config.title,
         description=config.description,
         version=config.version,
-        docs_url=None if config.ENV == "production" else "/docs",
-        redoc_url=None if config.ENV == "production" else "/redoc",
+        docs_url=None if config.env == "production" else "/docs",
+        redoc_url=None if config.env == "production" else "/redoc",
         middleware=make_middleware(),
     )
-    app.state.monitortask = monitortask
-    app.state.version = config.version
-    init_routers(app=app)
-    init_listeners(app=app)
-    return app
+    fastapi.state.monitortask = monitortask
+    fastapi.state.version = config.version
+    init_routers(fastapi)
+    init_listeners(fastapi)
+    return fastapi
 
 
 app = create_app()

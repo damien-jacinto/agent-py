@@ -1,4 +1,4 @@
-.PHONY: all lint test install environment
+.PHONY: all lint test install environment debug
 
 SRC_DIR = src
 
@@ -6,9 +6,10 @@ lint: ## Lint
 	black $(SRC_DIR)
 	flake8 $(SRC_DIR)
 	pydocstyle $(SRC_DIR)
+	pylint $(SRC_DIR) --output-format=colorized
 
 test: ## Launch pytest
-	pytest $(SRC_DIR)
+	pytest -s $(SRC_DIR)/tests/test*
 
 install: ## Install runtime requirements
 	pip install -r requirements.txt
@@ -26,8 +27,11 @@ clean: ## Remove virtual env
 	echo "> Removing virtual environment"
 	rm -r .venv
 
-run: ## Run local mode
+run: ## Run default mode
 	python3 src/main.py
+
+debug: ## Run local mode
+	python3 src/main.py --debug --env local
 
 help: ## Display this help screen
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

@@ -17,9 +17,10 @@ make run
 
 Environment variable:
 
-- ENV: local/dev/prod
-- VERSION: app version, default 1.0.0, endpoint /version
-- DESCRIPTION: app description
+- AGENT_ENV: local/dev/prod
+- AGENT_VERSION: app version, default 1.0.0, endpoint /version
+- AGENT_DESCRIPTION: app description
+- AGENT_DEBUG: activate debug mode (boolean)
 
 local : enable reload mode (default)
 prod : disable api doc
@@ -30,3 +31,8 @@ Run project with `make run` and consult url in log for api doc at `/docs` or `/r
 
 Application is running 2 threads, one for the API to expose metrics and one for collecting metrics.
 
+
+
+schema api
+schema model/schema
+schema package
