@@ -1,8 +1,5 @@
 fastapi
 uvicorn
 click
-flake8
-black==22.3.0
-pydocstyle
 pytest
 httpx

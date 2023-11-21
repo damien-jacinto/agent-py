@@ -86,8 +86,8 @@ def create_app() -> FastAPI:
         title=config.title,
         description=config.description,
         version=config.version,
-        docs_url=None if config.env == "production" else "/docs",
-        redoc_url=None if config.env == "production" else "/redoc",
+        docs_url="/docs",
+        redoc_url="/redoc",
         middleware=make_middleware(),
     )
     fastapi.state.monitortask = monitortask

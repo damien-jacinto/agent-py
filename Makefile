@@ -1,12 +1,6 @@
-.PHONY: all lint test install environment debug
+.PHONY: all test install environment debug
 
 SRC_DIR = src
-
-lint: ## Lint
-	black $(SRC_DIR)
-	flake8 $(SRC_DIR)
-	pydocstyle $(SRC_DIR)
-	pylint $(SRC_DIR) --output-format=colorized
 
 test: ## Launch pytest
 	pytest -s $(SRC_DIR)/tests/test*
