@@ -11,6 +11,8 @@
 make environment
 make help
 make run
+#or
+make debug
 ```
 
 ## Configuration
@@ -27,12 +29,6 @@ prod : disable api doc
 
 ## Usage
 
-Run project with `make run` and consult url in log for api doc at `/docs` or `/redoc`.
+Run project with `make debug` and consult url in log for api doc at `/docs` or `/redoc`.
 
 Application is running 2 threads, one for the API to expose metrics and one for collecting metrics.
-
-
-
-schema api
-schema model/schema
-schema package
